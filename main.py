@@ -1,10 +1,12 @@
+
+
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 import msal
 import requests
 import os
 from dotenv import load_dotenv
-
+from twilio.rest import Client
 # ---- Load .env file ----
 load_dotenv()
 
@@ -46,7 +48,11 @@ class BookMeetingRequest(BaseModel):
     attendee_name: str = "Guest"
     phone: str = "" 
     location: str = "Microsoft Teams Meeting"
-
+class SMSRequests(BaseModel):
+    phone : str
+    start_time: str  # "2025-09-06T10:00:00"
+    end_time: str    # "2025-09-06T11:00:00"
+    
 # ---- Endpoints ----
 @app.post("/availability")
 def check_availability(request: AvailabilityRequest):
@@ -127,6 +133,10 @@ def book_meeting(request: BookMeetingRequest):
         "attendee": request.attendee,
         "phone": request.phone,
     }
+    
+TWILIO_SID = os.getenv("TWILIO_ACCOUNT_SID")
+TWILIO_AUTH = os.getenv("TWILIO_AUTH_TOKEN")
+TWILIO_NUMBER = os.getenv("TWILIO_PHONE_NUMBER")
 @app.post("/sms_confirmation")
 def send_sms_confirmation(request: SMSRequests):
     """Send an SMS confirmation via Twilio."""
