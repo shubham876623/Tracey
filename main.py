@@ -127,4 +127,16 @@ def book_meeting(request: BookMeetingRequest):
         "attendee": request.attendee,
         "phone": request.phone,
     }
-
+@app.post("/sms_confirmation")
+def send_sms_confirmation(request: SMSRequests):
+    """Send an SMS confirmation via Twilio."""
+    user_number = request.phone
+    start_time = request.start_time
+    end_time = request.end_time
+    client = Client(TWILIO_SID, TWILIO_AUTH)
+    msg = f"your meeting with Tracey has been scheduled for {start_time} to Jul 12, 2025 at {end_time}. If you need to make any changes please call: 0483 905 455"
+    # client.messages.create(to=user_number, from_=TWILIO_NUMBER, body=msg)
+    # reply = f"✅ SMS sent to {user_number}"
+    return {
+         "status":"reply"
+    }
