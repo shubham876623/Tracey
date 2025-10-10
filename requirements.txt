@@ -3,4 +3,4 @@ uvicorn
 msal
 requests
 python-dotenv
-twilio==9.8.3
+twilio
