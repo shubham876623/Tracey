@@ -31,6 +31,19 @@ AUTHORITY = f"https://login.microsoftonline.com/{TENANT_ID}"
 SCOPES = ["https://graph.microsoft.com/.default"]
 
 app = FastAPI(title="Tammy Calendar + Odoo API")
+from datetime import datetime
+import pytz
+
+def format_datetime(dt_str):
+    # Convert ISO to Python datetime
+    dt = datetime.fromisoformat(dt_str.replace("Z", "+00:00"))
+
+    # Convert to Adelaide timezone
+    adl_tz = pytz.timezone("Australia/Adelaide")
+    dt_adl = dt.astimezone(adl_tz)
+
+    # Format cleanly
+    return dt_adl.strftime("%d %b %Y, %I:%M %p")
 
 
 # ---- Get token ----
@@ -182,12 +195,27 @@ def book_meeting(request: BookMeetingRequest):
 @app.post("/sms_confirmation")
 def send_sms_confirmation(request: SMSRequests):
     user_number = request.phone
-    start_time = request.start_time
-    end_time = request.end_time
+
+    # Format times nicely
+    start_fmt = format_datetime(request.start_time)
+    end_fmt = format_datetime(request.end_time)
+
     client = Client(TWILIO_SID, TWILIO_AUTH)
-    msg = f"Your meeting with Tracey has been scheduled for {start_time} to {end_time}. If you need to make changes, please call: 0483 905 455"
-    client.messages.create(to=user_number, from_=TWILIO_NUMBER, body=msg)
-    return {"status": f"✅ SMS ready to send to {user_number}"}
+
+    msg = (
+        f"Your meeting with Tracey has been booked for "
+        f"{start_fmt} to {end_fmt}. "
+        f"If you need to make changes, please call: 0483 905 455"
+    )
+
+    client.messages.create(
+        to=user_number,
+        from_=TWILIO_NUMBER,
+        body=msg
+    )
+    print(msg)
+    return {"status": f"SMS sent to {user_number}"}
+
 
 def create_odoo_event(name, email, phone, start, stop, subject):
     """Create an Odoo calendar event with correctly formatted datetimes."""
