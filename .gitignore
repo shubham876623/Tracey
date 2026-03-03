@@ -1,0 +1,17 @@
+# Python
+__pycache__/
+*.pyc
+
+# Environment
+.env
+
+# Logs / temp
+*.log
+*.json
+*.csv
+
+# OS
+.DS_Store
+
+# VSCode
+.vscode/

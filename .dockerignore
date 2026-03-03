@@ -1,0 +1,13 @@
+.env
+.git
+__pycache__
+*.pyc
+*.pyo
+.pytest_cache
+.venv
+venv
+test*.py
+testnumber.csv
+startup.txt
+bp.py
+DEPLOYMENT.md
